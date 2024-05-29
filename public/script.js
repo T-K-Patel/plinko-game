@@ -102,8 +102,8 @@ async function addBall() {
         alert('Out of funds');
         return;
     }
+    currAmount -= bet;
     fetch('/bet').then(res => res.json()).then(data => {
-        currAmount -= bet;
         currAmountContainer.innerHTML = currAmount.toFixed(2);
         const point = data.point;
         const x = point;
@@ -113,6 +113,7 @@ async function addBall() {
         balls.push(ball);
     }).catch((err) => {
         console.log(err);
+        currAmount += bet;
     })
     // const x = pad(WIDTH / 2 + Math.random() * 2 * SPACING - SPACING);
     // const y = pad(SPACING);
