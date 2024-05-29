@@ -12,7 +12,8 @@ app.use((req, res, next) => {
     try {
         const publicFolderPath = path.join(process.cwd(), 'public');
         const filePath = path.join(publicFolderPath, req.path);
-        if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
+        const indexPath = path.join(filePath, 'index.html');
+        if (fs.existsSync(filePath) && fs.statSync(filePath).isFile() || fs.existsSync(indexPath) && fs.statSync(indexPath).isFile()) {
             // File exists in public folder
             res.sendFile(req.path, { root: './public' });
         } else {
