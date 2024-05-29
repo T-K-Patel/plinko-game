@@ -1,0 +1,16 @@
+{
+  "name": "plinko-game",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Plinko gambling game",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "node --watch src/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}

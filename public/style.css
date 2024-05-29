@@ -1,0 +1,30 @@
+body {
+    background: #000;
+}
+
+main {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+canvas {
+    background: #111;
+    width: 800px;
+    height: 700px;
+}
+
+h3 {
+    color: #fff;
+    font-size: 20px;
+    text-align: center;
+}
+
+button {
+    background: green;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+}
