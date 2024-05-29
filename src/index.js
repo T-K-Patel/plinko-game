@@ -5,6 +5,20 @@ import path from 'path';
 const MULTIPLIER = [16, 9, 2, 1.4, 1.4, 1.2, 1.1, 1, 0.5, 1, 1.1, 1.2, 1.4, 1.4, 2, 9, 16]
 const app = express();
 
+const points = []
+for (let i = 0; i < 17; i++) {
+    for (let j = 0; j < data[i].length; j++) {
+        points.push({ i, p: data[i][j] })
+    }
+}
+/**
+ * shuffle points array
+ */
+for (let i = points.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [points[i], points[j]] = [points[j], points[i]];
+}
+
 app.set('json spaces', 4);
 // app.use(express.static('public'));
 
@@ -30,19 +44,9 @@ app.get('/', (req, res) => {
 });
 
 app.get('/bet', (req, res) => {
-    let path = [];
-    let counter = 0;
-    for (let i = 0; i < 17; i++) {
-        if (Math.random() < 0.5) {
-            path.push("R");
-            counter++;
-        } else {
-            path.push("L");
-        }
-    }
-    const m = MULTIPLIER[counter];
-    const point = data[counter][Math.floor(Math.random() * data[counter].length)];
-    res.send({ path: path, point, multiplier: m });
+    const point = points[Math.floor(Math.random() * points.length)];
+    const m = MULTIPLIER[point.i];
+    res.send({ point: point.p, multiplier: m });
 })
 
 app.listen(3000, () => {
