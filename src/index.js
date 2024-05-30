@@ -4,6 +4,10 @@ import fs from 'fs';
 import path from 'path';
 import { getPlinkoMultiplier } from './GetMultiplierId.js';
 import { ACCOUNTS } from './database.js';
+import AccountModel from './AccountModel.js';
+import mongoose from 'mongoose';
+import { config } from 'dotenv';
+config();
 const MULTIPLIER = [16, 9, 2, 1.4, 1.4, 1.2, 1.1, 1, 0.5, 1, 1.1, 1.2, 1.4, 1.4, 2, 9, 16]
 
 
@@ -21,7 +25,6 @@ app.use((req, res, next) => {
             // File exists in public folder
             res.sendFile(req.path, { root: './public' });
         } else {
-            console.log("file does not exist\n" + filePath)
             next();
         }
     } catch (e) {
@@ -33,26 +36,34 @@ app.get('/', (req, res) => {
     res.send('Hello World');
 });
 
-app.get("/:username/balance", (req, res) => {
+app.get("/:username/balance", async (req, res) => {
     const username = req.params.username;
-    if (ACCOUNTS[username]) {
-        res.json({ balance: ACCOUNTS[username] });
+    const account = await AccountModel.findOne({ id: "1" });
+    const user = account.database.find(a => a.username === username);
+    if (user) {
+        res.json({ balance: user.balance });
     } else {
-        ACCOUNTS[username] = 1000;
+        account.database.push({ username, balance: 1000 });
+        await account.save();
         res.status(200).json({ balance: 1000 });
     }
 })
 
-app.get('/:username/bet', (req, res) => {
+app.get('/:username/bet', async (req, res) => {
     const username = req.params.username;
-    if ((ACCOUNTS[username] ?? undefined) == undefined) {
-        ACCOUNTS[username] = 1000;
+    const account = await AccountModel.findOne({ id: "1" });
+    let user = account.database.find(a => a.username === username);
+    if (!user) {
+        user = { username, balance: 1000 };
+        account.database.push(user);
+        await account.save();
     }
-    if (ACCOUNTS[username] < 100) { return res.status(400).json({ point: null, earn: 0, error: "Insufficient Balance" }) }
+    if (user.balance < 100) { return res.status(400).json({ point: null, earn: 0, error: "Insufficient Balance" }) }
     const mId = getPlinkoMultiplier();
     const point = data[mId][Math.floor(Math.random() * data[mId].length)];
     const m = MULTIPLIER[mId];
-    ACCOUNTS[username] += (m - 1) * 100;
+    user.balance += (m - 1) * 100;
+    await account.save();
     res.json({ point: point, multiplier: m, earn: (m - 1) * 100, updatedBalance: ACCOUNTS[username] });
 })
 
@@ -80,6 +91,15 @@ app.get('/:username/bet', (req, res) => {
 //     });
 // })
 
-app.listen(3000, () => {
-    console.log('Server is running on http://localhost:3000');
-});
+mongoose.connect(process.env.MONGODB_URI).then(async () => {
+
+    const account = await AccountModel.findOne({ id: "1" })
+    if (!account) {
+        await AccountModel.create({ id: "1", database: [] });
+    }
+    app.listen(3000, () => {
+        console.log('Server is running on http://localhost:3000');
+    })
+}).catch(e => {
+    console.log(e);
+})
