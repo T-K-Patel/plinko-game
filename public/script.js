@@ -12,13 +12,13 @@ const GRAVITY = pad(0.2);
 const CONTAINER_COUNT = 16;
 
 const bet = 100;
-let currAmount = 1000;
+let currAmount = 0;
+let finalAmount = 0;
 
 const OBSTRACLES = [];
 const CONTAINER = [];
 let balls = [];
 const MULTIPLIER = [16, 9, 2, 1.4, 1.4, 1.2, 1.1, 1, 0.5, 1, 1.1, 1.2, 1.4, 1.4, 2, 9, 16]
-const POINTS = { 0: [], 1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [], 8: [], 9: [], 10: [], 11: [], 12: [], 13: [], 14: [], 15: [], 16: [] }
 
 
 const canvas = document.getElementById('canvas');
@@ -28,6 +28,14 @@ const ctx = canvas.getContext('2d');
 const addBallBtn = document.getElementById('addBall');
 const currAmountContainer = document.getElementById('currAmount');
 currAmountContainer.innerHTML = currAmount.toFixed(2);
+let ballAdded = false;
+
+
+/**
+ * check the url if it doesnt have username, then take username from pompt
+ */
+const url = new URL(window.location.href);
+let username = url.searchParams.get('username');
 
 for (let i = 2; i < CONTAINER_COUNT + 2; i++) {
     for (let j = 0; j < i + 1; j++) {
@@ -48,8 +56,14 @@ for (let i = 0; i < CONTAINER_COUNT + 1; i++) {
     });
 }
 
+const fetchCurrBalance = () => fetch(`/${username}/balance`).then(res => res.json()).then(data => {
+    currAmount = data.balance;
+    currAmountContainer.innerHTML = currAmount.toFixed(2);
+    finalAmount = currAmount
+}).catch(err => console.log(err));
 
 function draw() {
+    document.getElementById("ballCount").innerHTML = balls.length
     ctx.clearRect(0, 0, WIDTH, HEIGHT);
     OBSTRACLES.forEach(obstacle => {
         ctx.beginPath();
@@ -85,36 +99,43 @@ function draw() {
 
     balls = balls.filter(ball => {
         if (ball.markedForDeletion) {
-            if (ball.colidedWith !== null) {
-                POINTS[ball.colidedWith].push(Math.round(ball.start * 1e4) / 1e4);
-                currAmount += bet * MULTIPLIER[ball.colidedWith];
-                currAmountContainer.innerHTML = currAmount.toFixed(2);
-            }
+            if (Math.round(ball.earning * 100) != Math.round((MULTIPLIER[ball.colidedWith] - 1) * 100 * 100)) {
+                alert("Some Error Occured")
+            };
+            currAmount += ball.earning;
             return false;
         }
         return true;
     });
+    currAmountContainer.innerHTML = currAmount.toFixed(2);
+    if (balls.length == 0 && ballAdded) {
+        ballAdded = false;
+        fetchCurrBalance();
+    }
     requestAnimationFrame(draw);
+
 }
 
-async function addBall() {
-    if (currAmount < bet) {
-        alert('Out of funds');
-        return;
+async function addBall(username) {
+    if (balls.length + 1 > (currAmount / 50)) {
+        return alert("Wait till some balls gets to the sink")
     }
-    currAmount -= bet;
-    fetch('/bet').then(res => res.json()).then(data => {
-        currAmountContainer.innerHTML = currAmount.toFixed(2);
-        const point = data.point;
-        const x = point;
-        const y = pad(SPACING);
-        const r = pad(OBS_RADIUS * 1.6);
-        const ball = new Ball(x, y, r, GRAVITY, ctx, OBSTRACLES, CONTAINER);
-        balls.push(ball);
-    }).catch((err) => {
-        console.log(err);
-        currAmount += bet;
-    })
+    const resp = await fetch("/" + username + '/bet')
+    if (resp.status != 200 && resp.status != 400) {
+        console.log(resp)
+        return alert("Something went wrong")
+    }
+    ballAdded = true;
+    const data = await resp.json();
+
+    if (!data.point) { return alert(data.error) }
+    const point = data.point;
+    const x = point;
+    const y = pad(SPACING);
+    const r = pad(OBS_RADIUS * 1.6);
+    finalAmount = data.updatedBalance;
+    const ball = new Ball(x, y, r, GRAVITY, ctx, data.earn, OBSTRACLES, CONTAINER);
+    balls.push(ball);
     // const x = pad(WIDTH / 2 + Math.random() * 2 * SPACING - SPACING);
     // const y = pad(SPACING);
     // const r = pad(OBS_RADIUS * 1.6);
@@ -124,4 +145,21 @@ async function addBall() {
 
 draw()
 
-addBallBtn.addEventListener('click', addBall)
+while (!username) {
+    username = prompt('Enter your username');
+    if (username) {
+        url.searchParams.set('username', username);
+        window.location.href = url.toString();
+        break;
+    }
+}
+
+fetchCurrBalance();
+
+const addBallForm = document.getElementById('addBallForm');
+addBallForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    addBallBtn.disabled = true;
+    await addBall(username);
+    addBallBtn.disabled = false
+})

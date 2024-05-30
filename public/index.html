@@ -12,11 +12,12 @@
 
     <main>
         <canvas id="canvas" width="800" height="800"></canvas>
-        <div style="display: flex; justify-content: center; flex-direction: column;">
-            <h3>Betting 100$</h3>
-            <h3>Current Balance: <span id="currAmount">0</span> $</h3>
-            <button id="addBall">Bet</button>
-        </div>
+        <form id="addBallForm" style="display: flex; justify-content: center; flex-direction: column;">
+            <h3>Betting 100 &#x20B9;</h3>
+            <h3>Current Balance: <span id="currAmount">0</span> &#x20B9;</h3>
+            <button id="addBall" type="submit">Bet</button>
+            <span>Current Balls: <span id="ballCount">0</span></span>
+        </form>
     </main>
     <script src="script.js" type="module"></script>
 </body>

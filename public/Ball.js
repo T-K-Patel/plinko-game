@@ -3,7 +3,7 @@ import { pad, unPad } from "./helper.js";
 const HORIZONTAL_BOUNCE_FACTOR = 0.4;
 const VERTICAL_BOUNCE_FACTOR = 0.8;
 export default class Ball {
-    constructor(x, y, r, gravity, ctx, obs = [], container = []) {
+    constructor(x, y, r, gravity, ctx, e, obs = [], container = []) {
         this.start = x;
         this.x = x;
         this.y = y;
@@ -16,6 +16,7 @@ export default class Ball {
         this.ctx = ctx;
         this.markedForDeletion = false;
         this.colidedWith = null;
+        this.earning = e;
     }
 
     show() {
