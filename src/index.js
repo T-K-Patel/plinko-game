@@ -3,7 +3,6 @@ import { data } from './data.js';
 import fs from 'fs';
 import path from 'path';
 import { getPlinkoMultiplier } from './GetMultiplierId.js';
-import { ACCOUNTS } from './database.js';
 import AccountModel from './AccountModel.js';
 import mongoose from 'mongoose';
 import { config } from 'dotenv';
@@ -64,7 +63,7 @@ app.get('/:username/bet', async (req, res) => {
     const m = MULTIPLIER[mId];
     user.balance += (m - 1) * 100;
     await account.save();
-    res.json({ point: point, multiplier: m, earn: (m - 1) * 100, updatedBalance: ACCOUNTS[username] });
+    res.json({ point: point, multiplier: m, earn: (m - 1) * 100, updatedBalance: user.balance });
 })
 
 // app.get('/multiplier', (req, res) => {
