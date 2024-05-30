@@ -66,29 +66,29 @@ app.get('/:username/bet', async (req, res) => {
     res.json({ point: point, multiplier: m, earn: (m - 1) * 100, updatedBalance: user.balance });
 })
 
-// app.get('/multiplier', (req, res) => {
-//     const multipliers = []
-//     const count = 10000;
-//     const avg = []
-//     let i = 0;
-//     while (i++ < 1000) {
-//         const muls = [];
-//         for (let i = 0; i < count; i++) {
-//             const mId = getPlinkoMultiplier();
-//             muls.push(mId);
-//         }
-//         const sum = muls.map(a => MULTIPLIER[a]).reduce((a, b) => a + b, 0);
-//         avg.push(sum / count);
-//         multipliers.push(muls.reduce((a, m) => {
-//             a[m] += 1;
-//             return a;
-//         }, Array.from({ length: 17 }, () => 0)))
-//     }
-//     res.send({
-//         netAvg: avg.reduce((a, b) => a + b, 0) / avg.length,
-//         avg: avg.sort(), multipliers
-//     });
-// })
+app.get('/multiplier', (req, res) => {
+     const multipliers = []
+     const count = 10000;
+     const avg = []
+     let i = 0;
+     while (i++ < 1000) {
+         const muls = [];
+         for (let i = 0; i < count; i++) {
+             const mId = getPlinkoMultiplier();
+             muls.push(mId);
+         }
+         const sum = muls.map(a => MULTIPLIER[a]).reduce((a, b) => a + b, 0);
+         avg.push(sum / count);
+         multipliers.push(muls.reduce((a, m) => {
+             a[m] += 1;
+             return a;
+         }, Array.from({ length: 17 }, () => 0)))
+     }
+     res.send({
+         netAvg: avg.reduce((a, b) => a + b, 0) / avg.length,
+         avg: avg.sort(), multipliers
+     });
+ })
 
 mongoose.connect(process.env.MONGODB_URI).then(async () => {
 
