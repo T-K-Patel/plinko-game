@@ -46,6 +46,11 @@ button {
     border-radius: 10px;
 }
 
+button:disabled {
+    background: rgb(11, 105, 11);
+    cursor: not-allowed;
+}
+
 form>span {
     text-align: center;
     width: 100%;
