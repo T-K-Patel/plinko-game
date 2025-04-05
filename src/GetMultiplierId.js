@@ -1,5 +1,10 @@
 // Adjust probabilities to ensure the average multiplier is less than 1
-const probabilities = [0.001, 0.002, 0.005, 0.01, 0.01, 0.02, 0.05, 0.21, 0.28, 0.21, 0.05, 0.02, 0.01, 0.01, 0.005, 0.002, 0.001];
+const probabilities = [
+  0.030, 0.035, 0.040, 0.050, 0.060,
+  0.070, 0.080, 0.085, 0.090, 0.085,
+  0.080, 0.070, 0.060, 0.050, 0.040,
+  0.035, 0.030
+];
 
 const totalProbability = probabilities.reduce((sum, p) => sum + p, 0);
 const normalizedProbabilities = probabilities.map(p => p / totalProbability);
